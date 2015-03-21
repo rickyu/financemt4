@@ -14,7 +14,8 @@ int OnInit()
   {
 //--- create timer
    EventSetTimer(1);
-   Print("OnInit");
+   Print("OnInit,currency=", AccountCurrency(), ", profit_currency=", SymbolInfoString(Symbol(), SYMBOL_CURRENCY_PROFIT));
+   Print("min lot = ", MarketInfo(Symbol(), MODE_MINLOT), ", lot step=", MarketInfo(Symbol(), MODE_LOTSTEP));
       
 //---
    return(INIT_SUCCEEDED);
@@ -36,13 +37,35 @@ void OnDeinit(const int reason)
          Print("[timer]", i, " symbol:", symbols[i], ",ask=", MarketInfo(symbols[i], MODE_ASK));
      }
  }
+ 
+ datetime g_t = 0;
+ bool IsNewPeriod( int timeframe) 
+ {
+     if (g_t == 0) {
+         g_t = TimeCurrent();
+     }
+     int c = iBars(Symbol(), timeframe);
+     int shift = iBarShift(Symbol(), timeframe, g_t, true);
+     // Print("symbol=", Symbol(), ", gt=", g_t, ",c=", c, ", shift=", shift);
+     if (shift > 0) {
+         Print("new period,gt=", g_t, ",new_time=",TimeCurrent());
+        
+         g_t = TimeCurrent();
+         return true;
+     }
+     //Print("error=", GetLastError());
+     return false;
+ }
 //+------------------------------------------------------------------+
 //| Expert tick function                                             |
 //+------------------------------------------------------------------+
 void OnTick()
   {
 //---
-     RunOnce();
+     datetime t = MarketInfo(Symbol(), MODE_TIME);
+
+    //IsNewPeriod(PERIOD_CURRENT);
+   // Print("ask=", Ask, ",time=", iTime(Symbol(), PERIOD_CURRENT, 0));
    
   }
 //+------------------------------------------------------------------+
